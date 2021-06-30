@@ -45,27 +45,83 @@ struct chip8
     {
         unsigned short opcode;
         
-        switch (opcode)
-        {
-            // CLS
-            case 0x00E0:
-                for (int i = 0; i < W * H; i++) dsp[i] = 0;
-                break;
-            
-            // RET
-            case 0x00EE:
-                pc = stack[16];
-                --sp;
-                break;
-            
-            // 
-            case 0x1000:
+        if (opcode & 0xF000) {
+            switch (opcode) {
+                // JMP
+                case 0x1000:
+                    pc = opcode & 0x0FFF;
+                    break;
+                
+                // CALL
+                case 0x2000:
+                    ++sp;
+                    stack[sp] = pc;
+                    pc = 0x0FFF;
+                    break;
+                
+                // SE vx, byte
+                case 0x3000:
+                    if (v[opcode & 0x0F00] = opcode & 0x00FF) ++pc;
+                    break;
+                
+                // SNE vx, byte
+                case 0x4000:
+                    if (v[opcode & 0x0F00] != opcode & 0x00FF) ++pc;
+                    break;
+                
+                // SE vx, vy
+                case 0x5000:
+                    if (v[opcode & 0x0F00] = v[opcode & 0x00F0]) ++pc;
+                    break;
 
-                break;
+                // LD vx, byte
+                case 0x6000:
+                    if (v[opcode & 0x0F00] = opcode & 0x00FF);
+                    break;
 
-            default:
-                break;
+                // ADD vx, byte
+                case 0x7000:
+                    if (v[opcode & 0x0F00] += opcode & 0x00FF);
+                    break;
+
+                // LD vx, vy
+                case 0x8000:
+                    switch (opcode & 0x000F)
+                    {
+                    case 0x0001:
+                        v[opcode & 0x0F00] |= v[opcode & 0x00F0];
+                        break;
+                    
+                    case 0x0002:
+                        v[opcode & 0x0F00] &= v[opcode & 0x00F0];
+                        break;
+
+                    case 0x0003:
+                        v[opcode & 0x0F00] |= ~v[opcode & 0x00F0];
+                        break;
+
+                    default:
+                        break;
+                    }
+
+                default:
+                    break;
             }
+        } else {
+            switch (opcode) {
+
+                // CLS
+                case 0x00E0:
+                    for (int i = 0; i < W * H; i++) dsp[i] = 0;
+                    break;
+                
+                // RET
+                case 0x00EE:
+                    pc = stack[16];
+                    --sp;
+                    break;  
+            }
+        }
     }
 };
 
