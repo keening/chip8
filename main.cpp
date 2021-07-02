@@ -86,23 +86,52 @@ struct chip8
 
                 // LD vx, vy
                 case 0x8000:
-                    switch (opcode & 0x000F)
-                    {
-                    case 0x0001:
-                        v[opcode & 0x0F00] |= v[opcode & 0x00F0];
-                        break;
-                    
-                    case 0x0002:
-                        v[opcode & 0x0F00] &= v[opcode & 0x00F0];
-                        break;
+                    switch (opcode & 0x000F) {
+                        case 0x0001:
+                            v[opcode & 0x0F00] |= v[opcode & 0x00F0];
+                            break;
+                        
+                        case 0x0002:
+                            v[opcode & 0x0F00] &= v[opcode & 0x00F0];
+                            break;
 
-                    case 0x0003:
-                        v[opcode & 0x0F00] |= ~v[opcode & 0x00F0];
-                        break;
+                        case 0x0003:
+                            v[opcode & 0x0F00] |= ~v[opcode & 0x00F0];
+                            break;
 
-                    default:
-                        break;
+                        case 0x0004:
+                            unsigned short tmp = v[opcode & 0x0F00] + v[opcode & 0x00F0];
+                            tmp > 255 ? v[15] = 1 : v[15] = 0;
+                            v[opcode & 0x0F00] = tmp >> 8; 
+                            break;
+
+                        case 0x0005:
+                            v[opcode & 0x0F00] >  v[opcode & 0x00F0] ? v[15] = 1 : v[15] = 0;
+                            unsigned short tmp = v[opcode & 0x0F00] - v[opcode & 0x00F0];
+                            break;
+                        
+                        case 0x0006:
+                            unsigned char tmp = v[opcode & 0x0F00] >> 1;
+                            tmp & 0b0001 ? v[15] = 1 : v[15] = 0;
+                            v[opcode & 0x0F00] = tmp / 2;
+                            break;
+                        
+                        case 0x0007:
+                            v[opcode & 0x00F0] >  v[opcode & 0x0F00] ? v[15] = 1 : v[15] = 0;
+                            v[opcode & 0x00F0] = v[opcode & 0x00F0] - v[opcode & 0x0F00];
+                            break;
+
+                        case 0x000E:
+                            unsigned char tmp = v[opcode & 0x0F00] << 1;
+                            tmp & 0b0001 ? v[15] = 1 : v[15] = 0;
+                            v[opcode & 0x0F00] = tmp / 2;
+                            break;
+                        default:
+                            break;
                     }
+                case 9000:
+                    if (v[opcode & 0x0F00] != v[opcode & 0x00F0]) ++pc;
+                    break;
 
                 default:
                     break;
